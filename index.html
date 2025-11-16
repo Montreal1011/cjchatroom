@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vault-Tec Launcher</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Use a mono font for the classic terminal feel */
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        
+        body {
+            font-family: 'VT323', monospace;
+        }
+
+        /* Custom Keyframe for the Explosion Shake */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            40% { transform: translate(1px, -1px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            100% { transform: translate(1px, 1px) rotate(0deg); }
+        }
+
+        .exploding {
+            animation: shake 0.2s infinite;
+        }
+        
+        /* Custom Keyframe for the Explosion Flash */
+        @keyframes flash {
+            0%, 100% { background-color: #171717; } /* Dark background */
+            50% { background-color: #FFFF00; } /* Bright yellow/white flash */
+        }
+        
+        .flash-bg {
+            animation: flash 0.1s linear 5; /* 5 quick flashes */
+        }
+
+        /* Custom glow for the terminal screen */
+        .terminal-glow {
+            box-shadow: 0 0 15px rgba(59, 255, 100, 0.7), 0 0 5px rgba(59, 255, 100, 0.5) inset;
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+
+    <div id="app-container" class="min-h-screen flex items-center justify-center p-4">
+        <div id="vault-terminal" class="w-full max-w-sm p-6 md:p-10 border-4 border-lime-500 bg-black terminal-glow rounded-xl">
+            <!-- Header -->
+            <h1 class="text-4xl text-lime-400 mb-6 text-center tracking-widest leading-none">
+                <span class="text-lime-200">R</span>UNTIME <span class="text-lime-200">E</span>NTRY
+            </h1>
+            <p class="text-lime-300 text-lg mb-8 text-center">
+                // > Accessing Vault Sub-routine...
+            </p>
+
+            <!-- The Launch Button -->
+            <button id="launchButton" class="w-full py-4 text-2xl font-bold rounded-lg transition duration-150 ease-in-out
+                 bg-lime-600 hover:bg-lime-500 text-gray-900 border-2 border-lime-300
+                 shadow-lg shadow-lime-800/50 active:scale-[0.98]">
+                Run App in Browser
+            </button>
+
+            <!-- Status and Message Box -->
+            <div class="mt-8">
+                <p id="status-line" class="text-lime-400 text-lg text-center h-8">
+                    > STATUS: <span class="text-green-400">READY</span>
+                </p>
+                <div id="explosion-effect" class="text-7xl text-center hidden">
+                    💥
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        const launchButton = document.getElementById('launchButton');
+        const vaultTerminal = document.getElementById('vault-terminal');
+        const statusLine = document.getElementById('status-line');
+        const explosionEffect = document.getElementById('explosion-effect');
+        const artifactToOpen = 'CJ_Chatroom.jsx';
+        const explosionDuration = 500; // ms
+
+        /**
+         * Simulates opening a new artifact (file) in the surrounding environment.
+         * @param {string} fileName The name of the file to open.
+         */
+        function openArtifact(fileName) {
+            // This is the custom function used by the Canvas environment
+            // to open a new file. If the function isn't available, we log a message.
+            if (typeof parent.openArtifact === 'function') {
+                parent.openArtifact(fileName);
+            } else {
+                console.log(`[VAULT-TEC] Initiating File Open: ${fileName}`);
+                statusLine.innerHTML = `> ERROR: <span class="text-red-500">CANNOT OPEN FILE</span>`;
+                // Fallback for demonstration outside the environment
+                vaultTerminal.innerHTML = `
+                    <h1 class="text-4xl text-red-500 mb-6 text-center tracking-widest">FATAL ERROR</h1>
+                    <p class="text-red-400 text-lg text-center">File "${fileName}" requested.<br>
+                    Explosion Successful.<br>
+                    Please run in a compatible environment to launch the chatroom.</p>
+                `;
+            }
+        }
+
+        launchButton.addEventListener('click', () => {
+            // Prevent double-clicking
+            launchButton.disabled = true;
+            launchButton.innerHTML = 'K A B O O M . . .';
+            launchButton.classList.remove('bg-lime-600', 'hover:bg-lime-500');
+            launchButton.classList.add('bg-red-800', 'text-white');
+
+            // 1. Trigger the Visual Effects
+            vaultTerminal.classList.add('exploding', 'flash-bg');
+            explosionEffect.classList.remove('hidden');
+            statusLine.innerHTML = `> WARNING: <span class="text-yellow-400">CRITICAL FAILURE</span>`;
+
+            // 2. Schedule the file open after the explosion effect finishes
+            setTimeout(() => {
+                // Cleanup visual effects
+                vaultTerminal.classList.remove('exploding', 'flash-bg');
+                explosionEffect.classList.add('hidden');
+                
+                // 3. Open the target artifact
+                openArtifact(artifactToOpen);
+
+            }, explosionDuration);
+        });
+
+    </script>
+</body>
+</html>
